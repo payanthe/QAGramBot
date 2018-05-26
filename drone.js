@@ -485,19 +485,19 @@ Bot.on('inline_query', (ctx) => {
 Bot.startPolling();
 
 
-function noHashtag(inEnts) {
-    var ents = inEnts || [];
-    var hasharray = [];
-    for (var ent of ents) {
-        if (ent.type && ent.type == 'hashtag') {
-            console.log("yeeeeee")
-            var hashtag = "hashtag"
-            console.log(hashtag)
-            hasharray.push(hashtag)
-        }
-    }
-    return hasharray.length;
-}
+// function noHashtag(inEnts) {
+//     var ents = inEnts || [];
+//     var hasharray = [];
+//     for (var ent of ents) {
+//         if (ent.type && ent.type == 'hashtag') {
+//             console.log("yeeeeee")
+//             var hashtag = "hashtag"
+//             console.log(hashtag)
+//             hasharray.push(hashtag)
+//         }
+//     }
+//     return hasharray.length;
+// }
 
 function isQuestion(inEnts, text) {
     var ents = inEnts || [];
