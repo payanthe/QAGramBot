@@ -429,7 +429,7 @@ Bot.on('callback_query', async (ctx) => {
 // Bot.on( 'message', async ( ctx, next ) => {
 //     if ( ctx.message.forward_from_chat && ctx.message.forward_from_message_id )
 //     return deleteIt( ctx.message );
-//
+//d
 // if ( ctx.message.caption ) {
 //     var caption = ctx.message.caption;
 //     if ( /t(?:elegram)?\.me/.test( caption ) ) return deleteIt( ctx.message );
