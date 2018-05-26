@@ -745,7 +745,7 @@ class DBConnect{
 
     }
 
-
+//jj
     async unSetRule(user_id){
         var connection = mysql.createConnection({
             host: 'localhost',
