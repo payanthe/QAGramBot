@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - class/callbackhandler.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>class/callbackhandler.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">51.04</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">139</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">51.14</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">1.39</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">const DBConnect=require(&#039;./dbconnect.js&#039;)
+let dbConnect=new DBConnect();
+class CallBackHandler{
+
+async mosbatCBQuery(ctx,data,chat_id,message_id,user_id){
+    if(data.indexOf(&quot;mosbat&quot;) &gt; -1) {
+
+        var indexOfQuestion_id = data.lastIndexOf(&quot;-&quot;)+1;
+        var question_id=data.slice(indexOfQuestion_id,data.length)
+
+        if (await this.isRepeatedVote(question_id,user_id)){
+            this.changeVote(ctx,data,chat_id,message_id,user_id,question_id)
+
+        }else {
+            await dbConnect.increaseVoteUp(question_id);
+            await dbConnect.registerQuestionVote(question_id,user_id,&#039;+&#039;);
+            var voteUp=await dbConnect.getQuestionVoteUp(question_id)
+            var voteDown=await dbConnect.getQuestionVoteDown(question_id)
+            var manfiData=data.replace(&quot;mosbat&quot;,&quot;manfi&quot;);
+            var reply_markup= {
+                inline_keyboard: [[{
+                    text: &quot;➕ &quot;+voteUp  /* + score*/,
+                    callback_data: data
+                }, {text: &quot;➖ &quot;+ voteDown, callback_data: manfiData}, {
+                    text: &quot;❗️&quot;,
+                    callback_data: &quot;spam&quot; + &quot;-&quot;  + &quot;-&quot; + message_id
+                }]]
+            }
+            ctx.telegram.editMessageReplyMarkup(chat_id,message_id,&#039;&#039;,reply_markup)
+            ctx.answerCbQuery(&#039;mosbat&#039;,ctx.update.callback_query.id,{show_alert:true})
+
+
+        }
+
+    }
+
+}
+async manfiCBQuery(ctx,data,chat_id,message_id,user_id){
+    if(data.indexOf(&quot;manfi&quot;) &gt; -1) {
+
+        var indexOfQuestion_id = data.lastIndexOf(&quot;-&quot;)+1;
+        var question_id=data.slice(indexOfQuestion_id,data.length)
+        if (await this.isRepeatedVote(question_id,user_id)){
+            this.changeVote(ctx,data,chat_id,message_id,user_id,question_id)
+        }else {
+            await dbConnect.decreaseVoteDown(question_id);
+            await dbConnect.registerQuestionVote(question_id,user_id,&#039;-&#039;);
+
+            var voteUp=await dbConnect.getQuestionVoteUp(question_id)
+            var voteDown=await dbConnect.getQuestionVoteDown(question_id)
+            var mosbatData=data.replace(&quot;manfi&quot;,&quot;mosbat&quot;)
+            var reply_markup= {
+                inline_keyboard: [[{
+                    text: &quot;➕ &quot;+voteUp  /* + score*/,
+                    callback_data: mosbatData
+                }, {text: &quot;➖ &quot;+ voteDown, callback_data: data}, {
+                    text: &quot;❗️&quot;,
+                    callback_data: data
+                }]]
+            }
+            ctx.telegram.editMessageReplyMarkup(chat_id,message_id,&#039;&#039;,reply_markup)
+            ctx.answerCbQuery(&quot;manfi shoma sabt shod&quot;,ctx.update.callback_query.id,&#039;true&#039;,&#039;&#039;)
+
+        }
+
+    }
+
+}
+async isRepeatedVote(question_id,user_id){
+    var isRepeat=await dbConnect.repeatedVote(question_id,user_id)
+    if (isRepeat.length==0){
+        return 0;
+    }else {
+        return 1
+    }
+}
+async changeVote(ctx,data,chat_id,message_id,user_id,question_id){
+    var vote=await dbConnect.repeatedVote(question_id,user_id);
+    if(vote[0].vote==&#039;+&#039;){
+        if(data.indexOf(&quot;mosbat&quot;) &gt; -1) {
+
+            ctx.answerCbQuery(&#039;tekrari ghabl mosbat alan mosbat&#039;,ctx.update.callback_query.id,{show_alert:true})
+        }else {
+            await dbConnect.decreaseVoteUp(question_id)
+            await dbConnect.decreaseVoteDown(question_id)
+            await dbConnect.updateQuestionVote(question_id,user_id,&#039;-&#039;)
+
+            var voteUp=await dbConnect.getQuestionVoteUp(question_id)
+            var voteDown=await dbConnect.getQuestionVoteDown(question_id)
+            var mosbatData=data.replace(&quot;manfi&quot;,&quot;mosbat&quot;)
+            var reply_markup= {
+                inline_keyboard: [[{
+                    text: &quot;➕ &quot;+voteUp  /* + score*/,
+                    callback_data: mosbatData
+                }, {text: &quot;➖ &quot;+ voteDown, callback_data: data}, {
+                    text: &quot;❗️&quot;,
+                    callback_data: data
+                }]]
+            }
+            ctx.telegram.editMessageReplyMarkup(chat_id,message_id,&#039;&#039;,reply_markup)
+            ctx.answerCbQuery(&quot;avaz shod&quot;,ctx.update.callback_query.id,&#039;true&#039;,&#039;&#039;)
+
+
+        }
+
+
+    }
+    if(vote[0].vote==&#039;-&#039;){
+        if(data.indexOf(&quot;manfi&quot;) &gt; -1) {
+            ctx.answerCbQuery(&#039;tekrari ghabl manfi alan manfi&#039;,ctx.update.callback_query.id,{show_alert:true})
+        }else {
+            console.log(&quot;too else&quot;)
+            await dbConnect.increaseVoteDown(question_id)
+            await dbConnect.increaseVoteUp(question_id)
+            await dbConnect.updateQuestionVote(question_id,user_id,&#039;+&#039;)
+            var voteUp=await dbConnect.getQuestionVoteUp(question_id)
+            var voteDown=await dbConnect.getQuestionVoteDown(question_id)
+            var manfiData=data.replace(&quot;mosbat&quot;,&quot;manfi&quot;)
+            var reply_markup= {
+                inline_keyboard: [[{
+                    text: &quot;➕ &quot;+voteUp  /* + score*/,
+                    callback_data: data
+                }, {text: &quot;➖ &quot;+ voteDown, callback_data: manfiData}, {
+                    text: &quot;❗️&quot;,
+                    callback_data: manfiData
+                }]]
+            }
+            ctx.telegram.editMessageReplyMarkup(chat_id,message_id,&#039;&#039;,reply_markup)
+            ctx.answerCbQuery(&quot;avaz shod&quot;,ctx.update.callback_query.id,&#039;true&#039;,&#039;&#039;)
+
+        }
+
+    }
+
+
+}
+
+}
+module.exports=CallBackHandler;</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

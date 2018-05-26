@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - drone.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>drone.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">71.09</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">539</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">63.58</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">5.13</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">var crypto = require(&#039;crypto&#039;);
+var mysql = require(&#039;mysql&#039;);
+const InlineSearch=require(&#039;./class/inlinesearch.js&#039;)
+const MessageHandler=require(&#039;./class/messagehandler.js&#039;)
+const DBConnect=require(&#039;./class/dbconnect.js&#039;)
+const CallBackHandler=require(&#039;./class/callbackhandler.js&#039;)
+let inlineSearch = new InlineSearch();
+let messageHandler=new MessageHandler();
+let dbConnect=new DBConnect();
+let callBackHandler=new CallBackHandler();
+global.nightMode = &quot;ye chizi&quot;;
+
+const Telegraf = require(&#039;telegraf&#039;),
+    Token = process.env.BOT_TOKEN || &#039;595693896:AAELDNl1N93pUd9btE1f12RKneaEO1AaQDs&#039;,
+    fs = require(&#039;fs&#039;),
+    Bot = new Telegraf(Token);
+const TelegrafBotanio = require(&#039;./lib/botanio.js&#039;)
+
+const botanio = new TelegrafBotanio(process.env.BOTANIO_TOKEN || &quot;d6e895cb-a040-44cd-8e13-eaab5b71b560&quot;)
+
+Bot.use(botanio.middleware())
+const deleteIt = (msg) =&gt; {
+    Bot.telegram.deleteMessage(msg.chat.id, msg.message_id);
+};
+
+const isAdmin = async (chat, user) =&gt; {
+    try {
+        var status = await Bot.telegram.getChatMember(chat, user);
+        if (!status) return false;
+        if (status.status == &#039;creator&#039; || status.status == &#039;administrator&#039;) return true;
+        return false;
+    } catch (e) {
+        return false;
+    }
+};
+
+const escapeHTML = (str) =&gt; {
+    var out = str.replace(/&lt;/g, &#039;&amp;lt;&#039;);
+    out = out.replace(/&gt;/g, &#039;&amp;gt;&#039;);
+    out = out.replace(/&amp;/g, &#039;&amp;amp;&#039;);
+    out = out.replace(/&quot;/g, &#039;&amp;quot;&#039;);
+    return out;
+};
+
+const buildName = (from) =&gt; {
+    if (from.username)
+        return `&lt;a href=&quot;https://t.me/${from.username}&quot;&gt;${escapeHTML(from.first_name)}&lt;/a&gt;`;
+    else
+        return from.first_name;
+};
+
+Bot.telegram.getMe().then((profile) =&gt; {
+    global.my_id = profile.id;
+});
+
+Bot.command(&#039;start&#039;, (ctx) =&gt; {
+    if (ctx.chat.type == &#039;private&#039;)
+        ctx.replyWithHTML(&#039;ربات &lt;b&gt;Micro Drone&lt;/b&gt;. از @ehsaan_me&#039;);
+    else
+        deleteIt(ctx.message);
+});
+Bot.command(&#039;nightmodeon&#039;, (ctx) =&gt; {
+    nightModeOn()
+    ctx.reply(&quot;ساعت شبانه فعال شد&quot; + nightMode + &quot; در این ساعات امکان فعالیت در گروه وجود ندارد&quot;)
+
+    setTimeout(() =&gt; {
+        deleteIt(ctx.message);
+    }, 3000);
+
+
+});
+Bot.command(&#039;nightmodeoff&#039;, (ctx) =&gt; {
+    nightModeOff()
+    ctx.reply(&quot;ساعت شبانه غیر فعال&quot; + nightMode + &quot; شد !&quot;).then((sent) =&gt; {
+        setTimeout(() =&gt; {
+            deleteIt(ctx.message);
+            deleteIt(sent);
+
+        }, 30000);
+    })
+
+
+});
+Bot.command(&#039;nightmodestate&#039;, (ctx) =&gt; {
+    ctx.reply(&quot; وضعیت ساعت شبانه : &quot; + nightMode).then((sent) =&gt; {
+        setTimeout(() =&gt; {
+            deleteIt(ctx.message);
+            deleteIt(sent);
+
+        }, 30000);
+    })
+
+
+});
+
+
+Bot.on(&#039;channel_post&#039;, (ctx) =&gt; {
+    ctx.leaveChat();
+});
+
+// Bot.use( ( ctx, next ) =&gt; {
+//     if ( ctx.chat.type == &#039;supergroup&#039; ) {
+//     let chats = require( &#039;./chats.json&#039; );
+//
+//     if ( ! chats.chats[ ctx.chat.id ] )
+//         chats.chats[ ctx.chat.id ] = ctx.chat;
+//
+//     chats = JSON.stringify( chats );
+//     fs.writeFile( &#039;./chats.json&#039;, chats, &#039;utf-8&#039;, () =&gt; {} );
+// }
+// next();
+// } );
+
+Bot.hears(&#039;!flood&#039;, (ctx) =&gt; {
+    if (!ctx.message.reply_to_message)
+        return deleteIt(ctx.message);
+
+    ctx.botanio.track(&#039;!flood&#039;);
+
+    ctx.reply(&#039;لطفا از پخش‌کردن پیام‌ها بپرهیزید و موضوع را در قالب یک پیام ارسال کنید. 🙂&#039;, {
+        reply_to_message_id: ctx.message.reply_to_message.message_id
+    }).then((sent) =&gt; {
+        setTimeout(() =&gt; {
+            deleteIt(sent);
+            deleteIt(ctx.message);
+        }, 10000);
+    });
+});
+
+Bot.hears(&#039;!smart&#039;, (ctx) =&gt; {
+    if (!ctx.message.reply_to_message)
+        deleteIt(ctx.message);
+
+    ctx.replyWithHTML(&#039;لطفا پیش از پرسش سوال، مقاله‌ی &lt;a href=&quot;https://wiki.ubuntu.ir/wiki/Smart_Questions&quot;&gt;چگونه هوشمندانه سوال کنیم&lt;/a&gt; را مطالعه کنید. 🙂&#039;, {
+        reply_to_message_id: ctx.message.reply_to_message.message_id
+    }).then((sent) =&gt; {
+        setTimeout(() =&gt; {
+            deleteIt(sent);
+            deleteIt(ctx.message);
+        }, 10000);
+    });
+});
+
+Bot.hears(&#039;!ask&#039;, (ctx) =&gt; {
+    if (!ctx.message.reply_to_message)
+        deleteIt(ctx.message);
+
+    ctx.reply(&#039;لطفا از پرسش سوالاتی از قبیل «کسی هست» یا «کسی با X کار کرده» بپرهیزید و مستقیما سوال خود را مطرح کنید. 🙂&#039;, {
+        reply_to_message_id: ctx.message.reply_to_message.message_id
+    }).then((sent) =&gt; {
+        setTimeout(() =&gt; {
+            deleteIt(sent);
+            deleteIt(ctx.message);
+        }, 10000);
+    });
+});
+
+Bot.hears(/\/gag(.*)/, async (ctx) =&gt; {
+    if (!await isAdmin(ctx.chat.id, ctx.from.id)) return deleteIt(ctx.message);
+
+    var mins = +ctx.match[1].trim();
+    if (!mins || mins &lt; 0 || mins &gt; 60) mins = 5;
+
+    var target = ctx.message.reply_to_message;
+    if (!target) return deleteIt(ctx.message);
+    if (target.from.id == ctx.from.id) return deleteIt(ctx.message);
+    if (await isAdmin(ctx.chat.id, target.from.id)) return deleteIt(ctx.message);
+
+    var until = Math.floor(new Date() / 1000) + ( mins * 60 );
+    Bot.telegram.restrictChatMember(ctx.chat.id, target.from.id, {
+        can_send_messages: false,
+        until_date: until
+    });
+
+    deleteIt(ctx.message);
+    ctx.replyWithHTML(`کاربر ${buildName(target.from)} به مدت &lt;b&gt;${mins}&lt;/b&gt; دقیقه از ارسال هر گونه پیام توسط ادمین ${buildName(ctx.from)} منع گردید.`, {
+        disable_web_page_preview: true
+    });
+});
+
+// Bot.hears()
+
+Bot.hears(&#039;لینک گروه&#039;, async (ctx) =&gt; {
+    try {
+        var chatLink = await ctx.exportChatInviteLink();
+        var thisChat = await ctx.telegram.getChat(ctx.chat.id);
+
+        ctx.replyWithHTML(`گروه &lt;b&gt;${thisChat.title}&lt;/b&gt;
+&lt;a href=&quot;${chatLink}&quot;&gt;عضویت در این گروه&lt;/a&gt;`, {
+            reply_to_message_id: ctx.message.message_id
+        }).then((sent) =&gt; {
+            setTimeout(() =&gt; {
+                deleteIt(sent);
+                deleteIt(ctx.message);
+            }, 30000);
+        });
+    } catch (e) {
+        //...
+    }
+});
+
+Bot.hears(/#موقت/, async (ctx) =&gt; {
+    if (!await isAdmin(ctx.chat.id, ctx.from.id)) return deleteIt(ctx.message);
+
+    setTimeout(() =&gt; {
+        deleteIt(ctx.message);
+    }, 30000);
+});
+
+// RESTRICT CONTENTS &amp; USERS
+// Bot.use( async ( ctx, next ) =&gt; {
+//     var chat_id = ctx.chat.id, user_id = ctx.from.id;
+// try {
+//     if ( await isAdmin( chat_id, user_id ) ) return;
+//     if ( user_id == my_id ) return;
+//     ctx.telegram.restrictChatMember( chat_id, user_id, {
+//         can_send_messages:                      true,
+//         can_send_media_messages:                true,
+//         can_send_other_messages:                false,
+//         can_add_web_page_previews:              false
+//     } );
+// } catch( e ) {
+//     console.log( e );
+// }
+// next();
+// } );
+
+Bot.on(&#039;message&#039;, (ctx, next) =&gt; {
+    if (nightModeTime()) {
+        deleteIt(ctx.message)
+        ctx.reply(&quot;به دلیل ساعت شبانه امکان ارسال پیام نیست!&quot;).then((sent) =&gt; {
+            setTimeout(() =&gt; {
+                deleteIt(sent);
+                deleteIt(ctx.message);
+            }, 30000);
+        });
+
+        return
+    }
+    var new_members = ctx.message.new_chat_members;
+    if (!new_members) return next();
+
+    deleteIt(ctx.message);
+    for (var member of new_members) {
+        if (member.id == my_id) continue;
+        if (member.username &amp;&amp; member.username.toLowerCase().substr(-3, 3) == &#039;bot&#039;) {
+            ctx.telegram.kickChatMember(ctx.chat.id, member.id);
+        }
+    }
+});
+
+Bot.on([&#039;sticker&#039;, &#039;video_note&#039;, &#039;voice&#039;], (ctx) =&gt; {
+    deleteIt(ctx.message);
+});
+
+Bot.on(&#039;document&#039;, (ctx) =&gt; {
+    if (ctx.message.document.mime_type == &#039;video/mp4&#039;)
+        deleteIt(ctx.message);
+});
+
+Bot.hears([/t\.me/, /telegram\.me/], (ctx) =&gt; {
+    deleteIt(ctx.message);
+});
+Bot.on(&#039;text&#039;, async (ctx) =&gt; {
+    const message_id=(ctx.update.message.message_id).toString();
+    var id = ctx.update.message.from.id;
+    var text=ctx.message.text;
+    var inEnts=ctx.message.entities;
+    await messageHandler.textToQuestion(ctx,id,message_id,text,inEnts)
+    if (!messageHandler.noHashtag(inEnts)){
+        ctx.reply(&#039;hashtag bezanid  &#039;, {
+            reply_to_message_id: ctx.message.message_id
+        }).then((sent) =&gt; {
+            setTimeout(() =&gt; {
+                deleteIt(sent);
+                deleteIt(ctx.message);
+            }, 10000);
+        });
+
+
+    }
+
+
+});
+Bot.on(&#039;callback_query&#039;, async (ctx) =&gt; {
+    var data=ctx.update.callback_query.data;
+    var chat_id=ctx.update.callback_query.message.chat.id;
+    var user_id=ctx.update.callback_query.from.id;
+    var message_id=ctx.update.callback_query.message.message_id;
+    await callBackHandler.mosbatCBQuery(ctx,data,chat_id,message_id,user_id)
+    await callBackHandler.manfiCBQuery(ctx,data,chat_id,message_id,user_id)
+   
+
+
+
+});
+
+// Bot.on( &#039;message&#039;, async ( ctx, next ) =&gt; {
+//     if ( ctx.message.forward_from_chat &amp;&amp; ctx.message.forward_from_message_id )
+//     return deleteIt( ctx.message );
+//
+// if ( ctx.message.caption ) {
+//     var caption = ctx.message.caption;
+//     if ( /t(?:elegram)?\.me/.test( caption ) ) return deleteIt( ctx.message );
+//
+//     var regex = /(@[A-Z]*[a-z]*[0-9]*[_]*)/g;
+//     var usernames = caption.match( regex );
+//
+//     for ( var username of usernames ) {
+//         try {
+//             var chat = await ctx.telegram.getChat( username );
+//         } catch( e ) {
+//             continue;
+//         }
+//
+//         if ( chat &amp;&amp; chat.type == &#039;channel&#039; ) {
+//             deleteIt( ctx.message );
+//             break;
+//         }
+//     }
+// }
+// } );
+
+Bot.on(&#039;edited_message&#039;, async (ctx, next) =&gt; {
+    var msg = ctx.update.edited_message,
+        text = msg.caption || msg.text || &#039;&#039;;
+
+    if (/t(?:elegram)?\.me/.test(text)) return deleteIt(msg);
+
+    var regex = /(@[A-Z]*[a-z]*[0-9]*[_]*)/g;
+    var usernames = text.match(regex);
+
+    for (var username of usernames) {
+        try {
+            var chat = await ctx.telegram.getChat(username);
+        } catch (e) {
+            continue;
+        }
+
+        if (chat &amp;&amp; chat.type == &#039;channel&#039;) {
+            deleteIt(msg);
+            break;
+        }
+    }
+});
+
+Bot.on(&#039;inline_query&#039;, (ctx) =&gt; {
+    const query = ctx.inlineQuery.query;
+    const queryId = ctx.inlineQuery.id;
+    inlineSearch.search(ctx,query,queryId);
+
+})
+
+Bot.startPolling();
+
+
+function noHashtag(inEnts) {
+    var ents = inEnts || [];
+    var hasharray = [];
+    for (var ent of ents) {
+        if (ent.type &amp;&amp; ent.type == &#039;hashtag&#039;) {
+            console.log(&quot;yeeeeee&quot;)
+            var hashtag = &quot;hashtag&quot;
+            console.log(hashtag)
+            hasharray.push(hashtag)
+        }
+    }
+    return hasharray.length;
+}
+
+function isQuestion(inEnts, text) {
+    var ents = inEnts || [];
+    var hasharray = [];
+    var question = 0;
+    for (var ent of ents) {
+        if (ent.type &amp;&amp; ent.type == &#039;hashtag&#039;) {
+            console.log(&quot;yeeeeee&quot;)
+            var hashtag = text.toString().substr(ent.offset, ent.length);
+            console.log(hashtag)
+            hasharray.push(hashtag)
+        }
+        if (hashtag == &quot;#سوال&quot;) {
+            question += 1;
+            return 1;
+        }
+    }
+    return 0;
+
+
+}
+
+function isAnswer(inEnts, text) {
+    var ents = inEnts || [];
+    var hasharray = [];
+    var question = 0;
+    for (var ent of ents) {
+        if (ent.type &amp;&amp; ent.type == &#039;hashtag&#039;) {
+            console.log(&quot;yeeeeee&quot;)
+            var hashtag = text.toString().substr(ent.offset, ent.length);
+            console.log(hashtag)
+            hasharray.push(hashtag)
+        }
+        if (hashtag == &quot;#پاسخ&quot;) {
+            question += 1;
+            return 1;
+        }
+    }
+    return 0;
+
+
+}
+
+async function textToQuestion(ctx, text, inEnts) {
+
+    var message_id = ctx.update.message.message_id;
+    var id = ctx.update.message.from.id;
+    if (isQuestion(inEnts, text)) {
+        var unique = message_id;
+        text = &quot;شناسه سوال: &quot; + &quot;#question&quot; + unique + &quot;\n&quot; + text
+        text += &quot;\n [نویسنده](tg://user?id=&quot; + id + &quot;)&quot;
+        // insertQuestionToDB(unique,text,&quot;&quot;,id)
+        let score = await getQuestionsScore(151);
+        console.log(&quot;======&gt;&quot;, score);
+        ctx.reply(text, {
+            parse_mode: &quot;Markdown&quot;,
+            reply_markup: {
+                inline_keyboard: [[{
+                    text: &quot;➕&quot; + unique + score,
+                    callback_data: &quot;mosbat&quot; + &quot;-&quot; + id + &quot;-&quot; + message_id
+                }, {text: &quot;➖ &quot;, callback_data: &quot;manfi&quot; + &quot;-&quot; + id + &quot;-&quot; + message_id}, {
+                    text: &quot;❗️&quot;,
+                    callback_data: &quot;spam&quot; + &quot;-&quot; + id + &quot;-&quot; + message_id
+                }]]
+            }
+        })
+
+    }
+
+    console.log(ctx.update.message.message_id)
+    console.log(ctx.update.message.from.id)
+
+    // ctx.reply(text)
+
+
+}
+
+function answerToQuestion(ctx, text, inEnts) {
+
+    var message_id = ctx.update.message.message_id;
+    var id = ctx.update.message.from.id;
+    if (isAnswer(inEnts, text)) {
+        ctx.reply(text, {
+            reply_markup: {
+                inline_keyboard: [[{
+                    text: &quot;➕&quot;,
+                    callback_data: &quot;mosbat&quot; + &quot;-&quot; + id + &quot;-&quot; + message_id
+                }, {text: &quot;➖&quot;, callback_data: &quot;manfi&quot; + &quot;-&quot; + id + &quot;-&quot; + message_id}, {
+                    text: &quot;❗️&quot;,
+                    callback_data: &quot;spam&quot; + &quot;-&quot; + id + &quot;-&quot; + message_id
+                }]]
+            }
+        })
+
+    }
+
+    console.log(ctx.update.message.message_id)
+    console.log(ctx.update.message.from.id)
+
+    // ctx.reply(text)
+
+
+}
+
+function insertQuestionToDB(id_i, question_text_i, question_image_i, creator_id_i) {
+
+    var connection = mysql.createConnection({
+        host: &#039;localhost&#039;,
+        user: &#039;root&#039;,
+        password: &#039;&#039;,
+        database: &#039;gpae&#039;
+    });
+
+    connection.connect();
+
+    connection.query(&quot;INSERT INTO questions (id, question_text,question_image,creator_id) VALUES (?, ?,?,?)&quot;, [id_i, question_text_i, question_image_i, creator_id_i], function (error, results, fields) {
+        if (error) throw error;
+        console.log(&#039;The solution is: &#039;, results);
+    });
+
+    connection.end();
+
+}
+
+async function getQuestionsScore(question_id) {
+    var connection = mysql.createConnection({
+        host: &#039;localhost&#039;,
+        user: &#039;root&#039;,
+        password: &#039;&#039;,
+        database: &#039;gpae&#039;
+    });
+
+    connection.connect();
+
+    const myFirstPromise = new Promise((resolve, reject) =&gt; {
+        connection.query(&quot;SELECT question_rate FROM questions WHERE id = ?&quot;, question_id, function (error, results, fields) {
+            if (error) reject(error);
+            else resolve(results)
+            // console.log(&#039;The solution is: &#039;, results[0].question_rate);
+        })
+    })
+    connection.end();
+    let results = await myFirstPromise;
+    console.log(&quot;======&gt;&quot;, results);
+    return results[0].question_rate;
+}
+
+function nightModeOff() {
+    nightMode = &quot;off&quot;;
+}
+
+function nightModeOn() {
+    nightMode = &quot;on&quot;;
+}
+
+function nightModeTime() {
+    if (nightMode == &quot;on&quot;) {
+        return 1
+    } else {
+        return 0
+    }
+
+}
+
+function deleteAtNightModeTime(ctx) {
+    if (nightModeTime()) {
+        deleteIt(ctx.message)
+    }
+
+}</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
