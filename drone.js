@@ -484,7 +484,7 @@ Bot.on('inline_query', (ctx) => {
 
 Bot.startPolling();
 
-
+// d
 // function noHashtag(inEnts) {
 //     var ents = inEnts || [];
 //     var hasharray = [];
